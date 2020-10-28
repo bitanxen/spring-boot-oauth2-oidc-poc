@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+<div sec:authorize="isAuthenticated()">
+    <p>Hello, <strong th:text="${#authentication.name}"></strong>!</p>
+    <p>Your authorities are: <strong th:each="authority : ${#authentication.authorities}"><span
+            th:text="${authority.authority} + ' '"></span></strong></p>
+</div>
+
+<div sec:authorize="hasRole('USER')" class="alert alert-primary" role="alert">
+    This section is only visible only for ROLE_USER.
+</div>
+
+<div sec:authorize="hasRole('ADMIN')" class="alert alert-primary" role="alert">
+    This section is only visible only for ROLE_ADMIN.
+</div>
+
+<div sec:authorize="isAuthenticated()" class="alert alert-primary" role="alert">
+    This section is only visible only to authenticated users.
+</div>
+
+Data From Resource Server with Web Client: <span th:text="${webclientdata}">Blank</span>
+<br />
+Data From Resource Server with Rest Template: <span th:text="${resttemplatedata}">Blank</span>
+</body>
+</html>

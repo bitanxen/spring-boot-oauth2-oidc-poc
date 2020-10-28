@@ -1,0 +1,8 @@
+server.port=6591
+
+# Put the RapidAPI host and key from
+# https://rapidapi.com/logicbuilder/api/amazon-product-reviews-keywords
+app.rapidapi.host=
+app.rapidapi.key=
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:6565/
