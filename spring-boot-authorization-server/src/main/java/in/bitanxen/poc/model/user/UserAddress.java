@@ -1,5 +1,6 @@
 package in.bitanxen.poc.model.user;
 
+import in.bitanxen.poc.model.converter.BooleanToStringConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserAddress implements Address {
+public class UserAddress {
 
     @Id
     @GenericGenerator(name = "Application-Generic-Generator",
@@ -25,11 +26,14 @@ public class UserAddress implements Address {
     @JoinColumn(name = "USER_INFO", nullable = false, foreignKey = @ForeignKey(name = "FK_SYSTEM_USER_ADDRESS_USER"))
     private SystemUserInfo systemUserInfo;
 
-    @Column(name = "FORMATTED_ADDRESS")
-    private String formatted;
+    @Column(name = "STREET_LINE_1", nullable = false)
+    private String streetLine1;
 
-    @Column(name = "STREET_ADDRESS")
-    private String streetAddress;
+    @Column(name = "STREET_LINE_2")
+    private String streetLine2;
+
+    @Column(name = "STREET_LINE_3")
+    private String streetLine3;
 
     @Column(name = "CITY")
     private String city;
@@ -40,24 +44,41 @@ public class UserAddress implements Address {
     @Column(name = "REGION")
     private String region;
 
+    @Column(name = "LAND_MARK")
+    private String landMark;
+
     @Column(name = "STATE")
     private String state;
 
-    @Column(name = "COUNTRY")
+    @Column(name = "COUNTRY", nullable = false)
     private String country;
 
-    @Column(name = "POSTAL_CODE")
+    @Column(name = "POSTAL_CODE", nullable = false)
     private String postalCode;
 
-    public UserAddress(SystemUserInfo systemUserInfo, Address address) {
-        setSystemUserInfo(systemUserInfo);
-        setFormatted(address.getFormatted());
-        setStreetAddress(address.getStreetAddress());
-        setCity(address.getCity());
-        setDistrict(address.getDistrict());
-        setRegion(address.getRegion());
-        setState(address.getState());
-        setCountry(address.getCountry());
-        setPostalCode(address.getPostalCode());
+    @Column(name = "IS_PRIMARY")
+    @Convert(converter = BooleanToStringConverter.class)
+    private boolean primary;
+
+    public String getFormattedAddress() {
+        StringBuilder stringBuilder = new StringBuilder(streetLine1.trim());
+        if(streetLine2 != null && streetLine2.trim().length() > 0) {
+            stringBuilder.append(",\n").append(streetLine2.trim());
+        }
+        if(streetLine3 != null && streetLine3.trim().length() > 0) {
+            stringBuilder.append(",\n").append(streetLine3.trim());
+        }
+        if(city != null && city.trim().length() > 0) {
+            stringBuilder.append(",\nCity: ").append(city.trim());
+        }
+        if(district != null && district.trim().length() > 0) {
+            stringBuilder.append("\nDistrict: ").append(district.trim());
+        }
+        if(state != null && state.trim().length() > 0) {
+            stringBuilder.append("\nState: ").append(state.trim());
+        }
+        stringBuilder.append("\nCountry: ").append(country.trim());
+        stringBuilder.append("\nPostal Code: ").append(postalCode.trim());
+        return stringBuilder.toString();
     }
 }

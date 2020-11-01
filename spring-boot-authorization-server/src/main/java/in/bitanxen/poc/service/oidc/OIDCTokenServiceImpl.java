@@ -138,10 +138,9 @@ public class OIDCTokenServiceImpl implements OIDCTokenService {
                     signer.signJwt((SignedJWT) idToken);
                 } else {
                     idClaims.claim("kid", jwtService.getDefaultSignerKeyId());
-
-                    JWSHeader header = new JWSHeader(signingAlg, null, null, null, null, null, null, null, null, null,
-                            jwtService.getDefaultSignerKeyId(),
-                            null, null);
+                    JWSHeader header = new JWSHeader.Builder(signingAlg)
+                            .keyID(jwtService.getDefaultSignerKeyId())
+                            .build();
 
                     idToken = new SignedJWT(header, idClaims.build());
 
@@ -206,9 +205,9 @@ public class OIDCTokenServiceImpl implements OIDCTokenService {
                 .build();
 
         JWSAlgorithm signingAlg = jwtService.getDefaultSigningAlgorithm();
-        JWSHeader header = new JWSHeader(signingAlg, null, null, null, null, null, null, null, null, null,
-                jwtService.getDefaultSignerKeyId(),
-                null, null);
+        JWSHeader header = new JWSHeader.Builder(signingAlg)
+                .keyID(jwtService.getDefaultSignerKeyId())
+                .build();
         SignedJWT signed = new SignedJWT(header, claims);
         jwtService.signJwt(signed);
         token.setJwtValue(signed);

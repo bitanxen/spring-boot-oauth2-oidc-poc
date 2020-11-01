@@ -80,7 +80,7 @@ public class ConnectTokenEnhancer implements TokenEnhancer {
                 && !authentication.isClientOnly()) {
 
             String username = authentication.getName();
-            UserInfo userInfo = userService.getByUsernameAndClientId(username, client.getClientId());
+            UserInfo userInfo = userService.getUserInfoByUsernameAndClientId(username, client.getClientId());
 
             if (userInfo != null) {
                 LocalDateTime issueTime = claims.getIssueTime().toInstant()

@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import in.bitanxen.poc.model.converter.BooleanToStringConverter;
+import in.bitanxen.poc.model.converter.LocalDateTimeAttributeConverter;
+import in.bitanxen.poc.model.converter.LocalDateTimeStringConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,13 +15,14 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity(name = "TB_SYSTEM_USER")
 @Getter
 @Setter
 @NoArgsConstructor
-public class SystemUserInfo implements UserInfo {
+public class SystemUserInfo {
 
     @Id
     @GenericGenerator(name = "Application-Generic-Generator",
@@ -29,16 +32,13 @@ public class SystemUserInfo implements UserInfo {
     @Column(name = "USER_CODE", nullable = false, unique = true)
     private String userCode;
 
-    @Column(name="SUB")
-    private String sub;
-
-    @Column(name="PREFERRED_USERNAME")
+    @Column(name="PREFERRED_USERNAME", unique = true, nullable = false)
     private String preferredUsername;
 
-    @Column(name="USER_NAME")
-    private String name;
+    @Column(name="USER_PASSWORD", unique = true, nullable = false)
+    private String password;
 
-    @Column(name="GIVEN_NAME")
+    @Column(name="GIVEN_NAME", nullable = false)
     private String givenName;
 
     @Column(name="FAMILY_NAME")
@@ -50,37 +50,18 @@ public class SystemUserInfo implements UserInfo {
     @Column(name="NICK_NAME")
     private String nickname;
 
-    @Column(name="PROFILE")
-    private String profile;
-
-    @Column(name="PICTURE")
-    private String picture;
-
     @Column(name="WEBSITE")
     private String website;
 
-    @Column(name="EMAIL_ID")
-    private String email;
-
-    @Column(name="EMAIL_VERIFIED")
-    @Convert(converter = BooleanToStringConverter.class)
-    private boolean emailVerified;
-
-    @Column(name="PHONE_NUMBER")
-    private String phoneNumber;
-
-    @Column(name="PHONE_VERIFIED")
-    @Convert(converter = BooleanToStringConverter.class)
-    private boolean phoneNumberVerified;
-
-    @Column(name="GENDER")
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(name="GENDER", nullable = false)
+    private Gender gender;
 
     @Column(name="BIRTH_DATE")
     private LocalDate birthdate;
 
     @Column(name="ZONE_INFO")
-    private String zoneinfo;
+    private String zoneInfo;
 
     @Column(name="LOCALE")
     private String locale;
@@ -92,42 +73,78 @@ public class SystemUserInfo implements UserInfo {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "systemUserInfo")
     private Set<UserAddress> addresses = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "systemUserInfo")
+    private Set<UserEmail> userEmails = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "systemUserInfo")
+    private Set<UserPhone> userPhones = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "systemUserInfo")
+    private Set<UserProfilePicture> userProfilePics = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "systemUserInfo")
+    private Set<UserCoverPicture> userCoverPics = new HashSet<>();
+
     @Column(name="CREATED_ON")
+    @Convert(converter = LocalDateTimeStringConverter.class)
     private LocalDateTime createdOn;
 
     @Column(name="UPDATED_ON")
+    @Convert(converter = LocalDateTimeStringConverter.class)
     private LocalDateTime updatedOn;
 
-    @Override
+    public String getName() {
+        StringBuilder name = new StringBuilder(givenName);
+        if(middleName != null && middleName.trim().length() > 0) {
+            name.append(" ").append(middleName);
+        }
+        if(familyName != null && familyName.trim().length() > 0) {
+            name.append(" ").append(familyName);
+        }
+        return name.toString();
+    }
+
+    public String getEmail() {
+        Optional<String> userEmailOptional = userEmails
+                .stream()
+                .filter(UserEmail::isPrimary)
+                .map(UserEmail::getEmailId)
+                .findFirst();
+        return userEmailOptional.orElse(null);
+    }
+
     public boolean getEmailVerified() {
-        return emailVerified;
+        Optional<Boolean> userEmailOptional = userEmails
+                .stream()
+                .filter(UserEmail::isPrimary)
+                .map(UserEmail::isVerified)
+                .findFirst();
+        return userEmailOptional.orElse(false);
     }
 
-    @Override
+    public String getPhoneNumber() {
+        Optional<String> userPhoneOptional = userPhones
+                .stream()
+                .filter(UserPhone::isPrimary)
+                .map(UserPhone::getPhoneNumber)
+                .findFirst();
+        return userPhoneOptional.orElse(null);
+    }
+
     public boolean getPhoneNumberVerified() {
-        return phoneNumberVerified;
+        Optional<Boolean> userPhoneOptional = userPhones
+                .stream()
+                .filter(UserPhone::isPrimary)
+                .map(UserPhone::isVerified)
+                .findFirst();
+        return userPhoneOptional.orElse(false);
     }
 
-    @Override
-    public LocalDateTime getCreatedTime() {
-        return createdOn;
+    public UserAddress getUserPrimaryAddress() {
+        return addresses.stream().filter(UserAddress::isPrimary).findAny().orElse(null);
     }
 
-    @Override
-    public LocalDateTime getUpdatedTime() {
-        return updatedOn;
-    }
-
-    @Override
-    public JsonObject toJson() {
-        Gson gson = new Gson();
-        UserInfo userInfo = this;
-        JsonElement jsonElement = gson.toJsonTree(userInfo);
-        return jsonElement.getAsJsonObject();
-    }
-
-    @Override
-    public Set<Address> getAddresses() {
+    public Set<UserAddress> getAddresses() {
         return new HashSet<>(addresses);
     }
 }

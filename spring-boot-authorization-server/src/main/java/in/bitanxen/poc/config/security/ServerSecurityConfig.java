@@ -3,11 +3,13 @@ package in.bitanxen.poc.config.security;
 import in.bitanxen.poc.config.filter.AuthorizationRequestFilter;
 import in.bitanxen.poc.config.filter.LoginPageFilter;
 import in.bitanxen.poc.config.handler.AuthenticationSuccessHandler;
+import in.bitanxen.poc.config.provider.UserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -24,21 +26,21 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthorizationRequestFilter authorizationRequestFilter;
+    private final UserAuthenticationProvider authenticationProvider;
 
     @Autowired
     private OAuth2WebSecurityExpressionHandler expressionHandler;
 
-    public ServerSecurityConfig(AuthenticationSuccessHandler authenticationSuccessHandler, AuthorizationRequestFilter authorizationRequestFilter) {
+    public ServerSecurityConfig(AuthenticationSuccessHandler authenticationSuccessHandler, AuthorizationRequestFilter authorizationRequestFilter,
+                                UserAuthenticationProvider authenticationProvider) {
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authorizationRequestFilter = authorizationRequestFilter;
+        this.authenticationProvider = authenticationProvider;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user").password("$2a$10$cToZ9bRCWDjdbQK93QEqlOmtySou8ooY9jmZIzN06C/nYNdMiyjqC").roles("USER")
-                .and()
-                .withUser("admin").password("$2a$10$cToZ9bRCWDjdbQK93QEqlOmtySou8ooY9jmZIzN06C/nYNdMiyjqC").roles("USER", "ADMIN");
+        auth.authenticationProvider(authenticationProvider);
     }
 
     @Override

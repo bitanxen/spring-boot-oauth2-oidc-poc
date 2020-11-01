@@ -32,20 +32,13 @@ public class UserInfoEndpoint {
 
         OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
         OAuth2Request clientAuthentication = oAuth2Authentication.getOAuth2Request();
+        String clientId = clientAuthentication.getClientId();
+
+        System.out.println(oAuth2Authentication.getPrincipal());
         System.out.println(clientAuthentication.getScope());
 
         OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) oAuth2Authentication.getDetails();
 
-        SignedJWT s = null;
-        try {
-            s = SignedJWT.parse(details.getTokenValue());
-            jwtSignerVerifierService.validateSignature(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        SystemUserInfo systemUserInfo = new SystemUserInfo();
-        systemUserInfo.setSub("admin");
-        return ResponseEntity.ok(systemUserInfo);
+        return ResponseEntity.ok("UserInfo");
     }
 }

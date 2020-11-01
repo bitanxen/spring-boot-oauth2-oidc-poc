@@ -113,6 +113,11 @@ public class CommonUtil {
         System.out.println();
         System.out.println("Password is         : " + password);
         System.out.println("Encoded Password is : " + encodedPassword);
+        password = "password";
+        encodedPassword = passwordEncoder.encode(password);
+        System.out.println();
+        System.out.println("Password is         : " + password);
+        System.out.println("Encoded Password is : " + encodedPassword);
     }
 
 }

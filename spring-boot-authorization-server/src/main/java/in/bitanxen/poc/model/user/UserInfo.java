@@ -1,57 +1,32 @@
 package in.bitanxen.poc.model.user;
 
-import com.google.gson.JsonObject;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
 
-public interface UserInfo extends Serializable {
-
-    String getSub();
-
-    String getPreferredUsername();
-
-    String getName();
-
-    String getGivenName();
-
-    String getFamilyName();
-
-    String getMiddleName();
-
-    String getNickname();
-
-    String getProfile();
-
-    String getPicture();
-
-    String getWebsite();
-
-    String getEmail();
-
-    boolean getEmailVerified();
-
-    String getPhoneNumber();
-
-    boolean getPhoneNumberVerified();
-
-    String getGender();
-
-    LocalDate getBirthdate();
-
-    String getZoneinfo();
-
-    String getLocale();
-
-    Set<Address> getAddresses();
-
-    boolean isEnabled();
-
-    LocalDateTime getCreatedTime();
-
-    LocalDateTime getUpdatedTime();
-
-    JsonObject toJson();
+@Getter
+@Setter
+@Builder
+public class UserInfo {
+    private String sub;
+    private String preferredUsername;
+    private String name;
+    private String givenName;
+    private String familyName;
+    private String middleName;
+    private String nickName;
+    private String picture;
+    private String website;
+    private String emailId;
+    private boolean emailVerified;
+    private String phoneNumber;
+    private boolean phoneVerified;
+    private Gender gender;
+    private LocalDate birthDate;
+    private String zoneInfo;
+    private String locale;
+    private AddressInfo address;
+    private boolean enabled;
 }
